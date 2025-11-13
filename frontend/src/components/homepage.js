@@ -68,7 +68,7 @@ const Homepage = () => {
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden"
               >
                 <img
-                  src={`http://127.0.0.1:8000${item.foto}`} // gunakan foto dari backend
+                  src={`${item.foto}`} // gunakan foto dari backend
                   alt={item.nama}
                   className="w-full h-48 object-cover"
                 />
