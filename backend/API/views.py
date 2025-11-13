@@ -1,9 +1,19 @@
 from rest_framework import generics, status
 from Ecommerce.models import Produk, Keranjang, ItemKeranjang, Checkout
+<<<<<<< HEAD
 from .serializers import ProdukSerializer, KeranjangSerializer, ItemKeranjangSerializer, CheckoutSerializer, UserSerializer, RegisterSerializer, LoginSerializer
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework.response import Response
 
+=======
+from .serializers import ProdukSerializer, KeranjangSerializer, ItemKeranjangSerializer, CheckoutSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+>>>>>>> b4f75fb0362651c58ec80a3105b0e60fa4ddda34
 
 # ---------- PRODUK ----------
 class ProdukListCreateView(generics.ListCreateAPIView):
@@ -48,6 +58,7 @@ class CheckoutDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checkout.objects.all()
     serializer_class = CheckoutSerializer
 
+<<<<<<< HEAD
 class RegisterView(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = RegisterSerializer
@@ -85,3 +96,34 @@ class UserView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+=======
+class RegisterAPIView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not username or not password:
+            return Response({"error": "Username and password required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "User already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Membuat user dan token
+        user = User.objects.create_user(username=username, password=password)
+        token, created = Token.objects.get_or_create(user=user)
+        
+        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
+class LoginAPIView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key})
+        else:
+            return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
+>>>>>>> b4f75fb0362651c58ec80a3105b0e60fa4ddda34
