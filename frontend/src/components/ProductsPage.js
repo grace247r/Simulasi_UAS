@@ -24,7 +24,7 @@ const products = [
     name: "Bamboo Sunglasses",
     price: "Rp150.000",
     image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f17ab?w=200&h=200&fit=crop",
+      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop",
     category: "Accessories",
   },
   {
@@ -101,9 +101,12 @@ const ProductsPage = () => {
             />
           </div>
 
-          <button className="relative p-2 hover:bg-green-600 rounded-full">
+          <Link
+            to="/cart"
+            className="relative p-2 hover:bg-green-600 rounded-full"
+          >
             <ShoppingCart size={22} />
-          </button>
+          </Link>
 
           <button className="relative p-2 hover:bg-green-600 rounded-full">
             <CreditCard size={22} />
@@ -195,9 +198,10 @@ const ProductsPage = () => {
         {filteredProducts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((item) => (
-              <div
+              <Link
                 key={item.id}
-                className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden"
+                to={`/product/${item.id}`}
+                className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden block"
               >
                 <img
                   src={item.image}
@@ -211,11 +215,15 @@ const ProductsPage = () => {
                   <p className="text-green-600 font-medium mt-2">
                     {item.price}
                   </p>
-                  <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">
+                  <Link
+                    to="/cart"
+                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 inline-block text-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     Add to Cart
-                  </button>
+                  </Link>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (

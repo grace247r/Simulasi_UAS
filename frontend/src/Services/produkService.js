@@ -48,10 +48,12 @@ export const deleteProduct = async (id) => {
   }
 };
 
-export default {
+const productService = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
 };
+
+export default productService;

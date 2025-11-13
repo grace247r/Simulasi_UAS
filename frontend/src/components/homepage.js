@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, CreditCard, Search } from "lucide-react"; // hapus yang nggak kepakai
-import { getProducts } from "../Services/productService"; // pastikan file ini ada
+import { getProducts } from "../services/produkService"; // pastikan file ini ada
 
 const Homepage = () => {
   const [products, setProducts] = useState([]); // awalnya kosong
@@ -16,9 +16,8 @@ const Homepage = () => {
     fetchData();
   }, []);
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.nama.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = products.filter((p) =>
+    p.nama.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -31,7 +30,10 @@ const Homepage = () => {
             Products
           </Link>
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 text-gray-400" size={18} />
+            <Search
+              className="absolute left-2 top-2.5 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search product..."
@@ -40,7 +42,10 @@ const Homepage = () => {
               className="pl-8 pr-3 py-2 rounded-lg text-gray-700 focus:outline-none"
             />
           </div>
-          <Link to="/cart" className="relative p-2 hover:bg-green-600 rounded-full block">
+          <Link
+            to="/cart"
+            className="relative p-2 hover:bg-green-600 rounded-full block"
+          >
             <ShoppingCart size={22} />
           </Link>
           <button className="relative p-2 hover:bg-green-600 rounded-full">
@@ -58,15 +63,22 @@ const Homepage = () => {
         {filteredProducts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden">
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden"
+              >
                 <img
                   src={`http://127.0.0.1:8000${item.foto}`} // gunakan foto dari backend
                   alt={item.nama}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4 text-center">
-                  <h3 className="text-lg font-semibold text-gray-700">{item.nama}</h3>
-                  <p className="text-green-600 font-medium mt-2">Rp{item.harga}</p>
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    {item.nama}
+                  </h3>
+                  <p className="text-green-600 font-medium mt-2">
+                    Rp{item.harga}
+                  </p>
                   <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">
                     Add to Cart
                   </button>
@@ -75,7 +87,9 @@ const Homepage = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 text-center mt-10">Loading or no products found.</p>
+          <p className="text-gray-500 text-center mt-10">
+            Loading or no products found.
+          </p>
         )}
       </main>
     </div>
