@@ -8,7 +8,11 @@ export const getProducts = async () => {
     console.log("Fetched data:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching products:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
     return [];
   }
 };

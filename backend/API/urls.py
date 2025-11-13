@@ -18,12 +18,6 @@ urlpatterns = [
     path('checkout/', views.CheckoutListCreateView.as_view(), name='checkout-list'),
     path('checkout/<int:pk>/', views.CheckoutDetailView.as_view(), name='checkout-detail'),
 
-<<<<<<< HEAD
-    path('register/', views.RegisterView.as_view(), name='register'),
-    path('login/', views.LoginView.as_view(), name='login'),
-    path('user/', views.UserView.as_view(), name='user'),
-=======
-    path('register/', views.RegisterAPIView.as_view(), name='api_register'), # Cocok dengan /auth/register/
-    path('login/', views.LoginAPIView.as_view(), name='api_login'),
->>>>>>> b4f75fb0362651c58ec80a3105b0e60fa4ddda34
+    path('register/', views.RegisterAPIView.as_view(), name='register'),
+    path('login/', views.LoginAPIView.as_view(), name='login'),
 ]

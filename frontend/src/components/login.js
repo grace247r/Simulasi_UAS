@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../services/auth";
 
 function Login() {
-  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,30 +14,27 @@ function Login() {
 
     try {
       const res = await loginUser(username, password);
-      console.log(res.data);
-      alert("Login successful!");
-      navigate("/homepage");
+      console.log("Response from backend:", res.data);
+
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        alert("Login successful!");
+        navigate("/homepage");
+      }
     } catch (err) {
-      setError("Invalid email or password");
+      console.error(
+        "Login error:",
+        err.response ? err.response.data : err.message
+      );
+      setError("Invalid username or password");
     }
   };
 
   return (
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Logo / Title */}
         <h1 style={styles.logo}>EcoShop 🌿</h1>
         <h2 style={styles.title}>Welcome Back</h2>
-
-        {/* Email */}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-          required
-        />
 
         {/* Username */}
         <input
@@ -60,10 +56,8 @@ function Login() {
           required
         />
 
-        {/* Error message */}
         {error && <p style={styles.error}>{error}</p>}
 
-        {/* Button */}
         <button
           type="submit"
           style={styles.button}
@@ -73,7 +67,6 @@ function Login() {
           Login
         </button>
 
-        {/* Link */}
         <p style={styles.link}>
           Don’t have an account?{" "}
           <Link to="/signup" style={styles.signupLink}>

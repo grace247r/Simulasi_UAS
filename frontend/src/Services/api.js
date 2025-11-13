@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8000/api"; // Adjust if backend is on different port
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
+
 
 // Add token to requests if available
 api.interceptors.request.use((config) => {
