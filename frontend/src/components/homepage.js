@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, CreditCard, Search } from "lucide-react"; // hapus yang nggak kepakai
-import { getProducts } from "../services/produkService"; // pastikan file ini ada
+import { ShoppingCart, CreditCard, Search } from "lucide-react";
+import { getProducts } from "../services/produkService";
 
 const Homepage = () => {
-  const [products, setProducts] = useState([]); // awalnya kosong
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
-  // Fetch produk dari backend waktu komponen dimount
   useEffect(() => {
     const fetchData = async () => {
       const data = await getProducts();
@@ -68,7 +67,7 @@ const Homepage = () => {
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden"
               >
                 <img
-                  src={`http://127.0.0.1:8000${item.foto}`} // gunakan foto dari backend
+                  src={item.foto}
                   alt={item.nama}
                   className="w-full h-48 object-cover"
                 />

@@ -17,4 +17,8 @@ urlpatterns = [
     # Checkout
     path('checkout/', views.CheckoutListCreateView.as_view(), name='checkout-list'),
     path('checkout/<int:pk>/', views.CheckoutDetailView.as_view(), name='checkout-detail'),
+
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('user/', views.UserView.as_view(), name='user'),
 ]
