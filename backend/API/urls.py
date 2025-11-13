@@ -17,4 +17,7 @@ urlpatterns = [
     # Checkout
     path('checkout/', views.CheckoutListCreateView.as_view(), name='checkout-list'),
     path('checkout/<int:pk>/', views.CheckoutDetailView.as_view(), name='checkout-detail'),
+
+    path('register/', views.RegisterAPIView.as_view(), name='api_register'), # Cocok dengan /auth/register/
+    path('login/', views.LoginAPIView.as_view(), name='api_login'),
 ]

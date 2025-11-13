@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'Ecommerce',
     'rest_framework_simplejwt',
     'API',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,12 @@
 from rest_framework import generics
 from Ecommerce.models import Produk, Keranjang, ItemKeranjang, Checkout
 from .serializers import ProdukSerializer, KeranjangSerializer, ItemKeranjangSerializer, CheckoutSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
 
 # ---------- PRODUK ----------
 class ProdukListCreateView(generics.ListCreateAPIView):
@@ -44,3 +50,33 @@ class CheckoutListCreateView(generics.ListCreateAPIView):
 class CheckoutDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checkout.objects.all()
     serializer_class = CheckoutSerializer
+
+class RegisterAPIView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not username or not password:
+            return Response({"error": "Username and password required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "User already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Membuat user dan token
+        user = User.objects.create_user(username=username, password=password)
+        token, created = Token.objects.get_or_create(user=user)
+        
+        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
+class LoginAPIView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key})
+        else:
+            return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
