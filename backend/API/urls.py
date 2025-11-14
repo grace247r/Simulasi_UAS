@@ -8,7 +8,6 @@ urlpatterns = [
 
     # Keranjang
     path('keranjang/', views.KeranjangListCreateView.as_view(), name='keranjang-list'),
-    path('keranjang/<int:pk>/', views.KeranjangDetailView.as_view(), name='keranjang-detail'),
 
     # Item Keranjang
     path('item-keranjang/', views.ItemKeranjangListCreateView.as_view(), name='item-keranjang-list'),

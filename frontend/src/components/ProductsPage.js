@@ -1,23 +1,49 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ShoppingCart, CreditCard, Search, Home } from "lucide-react";
-import { getProducts } from "../services/produkService";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, CreditCard, Search, Home, LogIn } from "lucide-react";
+import { getProducts, handleLogout as serviceLogout } from "../services/produkService";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
 
+  const navigate = useNavigate();
+
+  // Fetch products dengan polling
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getProducts();
-      setProducts(data);
+      setIsLoading(true);
+      try {
+        const data = await getProducts();
+        const dataWithFullUrl = data.map((p) => ({
+          ...p,
+          foto: p.foto?.startsWith("http") ? p.foto : `http://127.0.0.1:8000${p.foto}`,
+        }));
+        setProducts(dataWithFullUrl);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
+
     fetchData();
+    const interval = setInterval(fetchData, 5000); // reload tiap 5 detik
+    return () => clearInterval(interval);
   }, []);
 
   const filteredProducts = products.filter((p) =>
     p.nama.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Logout handler
+  const handleLogout = () => {
+    serviceLogout(); // hapus token dari localStorage
+    setToken(null);
+    navigate("/"); // redirect ke login page
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,10 +55,7 @@ const ProductsPage = () => {
             <Home size={22} />
           </Link>
           <div className="relative">
-            <Search
-              className="absolute left-2 top-2.5 text-gray-400"
-              size={18}
-            />
+            <Search className="absolute left-2 top-2.5 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search product..."
@@ -41,15 +64,37 @@ const ProductsPage = () => {
               className="pl-8 pr-3 py-2 rounded-lg text-gray-700 focus:outline-none"
             />
           </div>
-          <Link
-            to="/cart"
-            className="relative p-2 hover:bg-green-600 rounded-full block"
-          >
+          <Link to="/cart" className="relative p-2 hover:bg-green-600 rounded-full block">
             <ShoppingCart size={22} />
           </Link>
           <button className="relative p-2 hover:bg-green-600 rounded-full">
             <CreditCard size={22} />
           </button>
+
+          {/* Login / Signup / Logout */}
+          {!token ? (
+            <>
+              <Link
+                to="/"
+                className="flex items-center gap-1 hover:text-green-200 font-medium"
+              >
+                <LogIn size={18} /> Login
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-white text-green-700 px-4 py-2 rounded-full font-semibold hover:bg-green-100 transition"
+              >
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="bg-white text-green-700 px-4 py-2 rounded-full font-semibold hover:bg-green-100 transition"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </header>
 
@@ -59,7 +104,9 @@ const ProductsPage = () => {
           All Products
         </h2>
 
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <p className="text-gray-500 text-center mt-10">Loading products...</p>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((item) => (
               <Link
@@ -68,7 +115,7 @@ const ProductsPage = () => {
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden block"
               >
                 <img
-                  src={`http://127.0.0.1:8000${item.foto}`}
+                  src={item.foto}
                   alt={item.nama}
                   className="w-full h-48 object-cover"
                 />
@@ -88,7 +135,7 @@ const ProductsPage = () => {
           </div>
         ) : (
           <p className="text-gray-500 text-center mt-10">
-            Loading or no products found.
+            No products found 🌱
           </p>
         )}
       </main>

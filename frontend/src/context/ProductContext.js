@@ -1,5 +1,3 @@
-// src/context/ProductContext.js
-
 import React, { createContext, useState, useEffect } from 'react';
 import { getProducts } from '../services/produkService';
 
@@ -11,7 +9,7 @@ export const ProductProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch data hanya sekali di sini
+    // Fetch data pertama kali dan polling setiap 5 detik
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -23,10 +21,17 @@ export const ProductProvider = ({ children }) => {
                 setIsLoading(false);
             }
         };
+
+        // Fetch pertama
         fetchData();
+
+        const interval = setInterval(fetchData, 5000);
+
+        // Bersihkan interval saat component unmount
+        return () => clearInterval(interval);
     }, []);
 
-    // Fungsi yang akan digunakan untuk menambah produk baru
+    // Fungsi untuk menambah produk baru secara manual (jika dibutuhkan)
     const addProduct = (newProduct) => {
         setProducts(prevProducts => [...prevProducts, newProduct]);
     };

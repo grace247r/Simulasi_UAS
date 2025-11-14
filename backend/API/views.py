@@ -7,6 +7,8 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+
 
 # ---------- PRODUK ----------
 class ProdukListCreateView(generics.ListCreateAPIView):
@@ -31,9 +33,28 @@ class KeranjangDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # ---------- ITEM KERANJANG ----------
+
+from rest_framework.response import Response
+
 class ItemKeranjangListCreateView(generics.ListCreateAPIView):
-    queryset = ItemKeranjang.objects.all()
     serializer_class = ItemKeranjangSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        keranjang, _ = Keranjang.objects.get_or_create(user=self.request.user)
+        return ItemKeranjang.objects.filter(keranjang=keranjang)
+
+    def perform_create(self, serializer):
+        keranjang, _ = Keranjang.objects.get_or_create(user=self.request.user)
+        serializer.save(keranjang=keranjang)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        # Re-fetch item untuk sertakan nested produk_detail
+        item = ItemKeranjang.objects.get(pk=response.data['id'])
+        serializer = self.get_serializer(item)
+        return Response(serializer.data)
+
 
 
 class ItemKeranjangDetailView(generics.RetrieveUpdateDestroyAPIView):
