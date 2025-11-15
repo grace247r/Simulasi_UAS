@@ -1,44 +1,66 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, ArrowLeft, Plus, Minus, Trash2 } from "lucide-react";
-
-// Sample cart data - in a real app, this would come from context/state management
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Eco Tote Bag",
-    price: 120000,
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop",
-    quantity: 2,
-  },
-  {
-    id: 3,
-    name: "Bamboo Sunglasses",
-    price: 150000,
-    image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop",
-    quantity: 1,
-  },
-];
+import {
+  getCart,
+  updateCartItem,
+  removeFromCart,
+} from "../services/produkService";
 
 const Keranjang = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const updateQuantity = (id, newQuantity) => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  // Redirect ke login kalau belum login
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
+
+  // Fetch cart dari backend
+  useEffect(() => {
+    const fetchCart = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getCart();
+        setCartItems(data);
+      } catch (error) {
+        console.error("Error fetching cart:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCart();
+  }, []);
+
+  const updateQuantityHandler = async (id, newQuantity) => {
     if (newQuantity === 0) {
-      removeItem(id);
+      await removeItemHandler(id);
       return;
     }
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    try {
+      await updateCartItem(id, newQuantity);
+      setCartItems((items) =>
+        items.map((item) =>
+          item.id === id ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
   };
 
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  const removeItemHandler = async (id) => {
+    try {
+      await removeFromCart(id);
+      setCartItems((items) => items.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   };
 
   const subtotal = cartItems.reduce(
@@ -56,13 +78,21 @@ const Keranjang = () => {
     }).format(price);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading cart...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-green-700 text-white flex justify-between items-center px-6 py-4 shadow-md">
         <div className="flex items-center gap-4">
           <Link
-            to="/"
+            to="/products"
             className="flex items-center gap-2 hover:bg-green-600 px-3 py-2 rounded"
           >
             <ArrowLeft size={20} />
@@ -122,7 +152,7 @@ const Keranjang = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
+                          updateQuantityHandler(item.id, item.quantity - 1)
                         }
                         className="p-1 hover:bg-gray-100 rounded"
                       >
@@ -131,7 +161,7 @@ const Keranjang = () => {
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantityHandler(item.id, item.quantity + 1)
                         }
                         className="p-1 hover:bg-gray-100 rounded"
                       >
@@ -143,7 +173,7 @@ const Keranjang = () => {
                         {formatPrice(item.price * item.quantity)}
                       </p>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItemHandler(item.id)}
                         className="text-red-500 hover:text-red-700 mt-1"
                       >
                         <Trash2 size={16} />

@@ -5,9 +5,16 @@ from rest_framework import serializers
 
 
 class ProdukSerializer(serializers.ModelSerializer):
+    harga = serializers.DecimalField(
+        max_digits=10, decimal_places=2, coerce_to_string=False
+    )
+    rating = serializers.FloatField(default=0.0)
+    reviews = serializers.IntegerField(default=0)
+
     class Meta:
         model = Produk
         fields = '__all__'
+
 
 
 class KeranjangSerializer(serializers.ModelSerializer):
@@ -17,9 +24,13 @@ class KeranjangSerializer(serializers.ModelSerializer):
 
 
 class ItemKeranjangSerializer(serializers.ModelSerializer):
+    # Ini akan meng-include detail produk lengkap
+    produk_detail = ProdukSerializer(source='produk', read_only=True)
+
     class Meta:
         model = ItemKeranjang
-        fields = '__all__'
+        fields = ['id', 'keranjang', 'produk', 'jumlah', 'produk_detail']
+        read_only_fields = ['keranjang']
 
 
 class CheckoutSerializer(serializers.ModelSerializer):
