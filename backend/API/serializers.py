@@ -24,19 +24,20 @@ class KeranjangSerializer(serializers.ModelSerializer):
 
 
 class ItemKeranjangSerializer(serializers.ModelSerializer):
-    # Ini akan meng-include detail produk lengkap
     produk_detail = ProdukSerializer(source='produk', read_only=True)
 
     class Meta:
         model = ItemKeranjang
         fields = ['id', 'keranjang', 'produk', 'jumlah', 'produk_detail']
-        read_only_fields = ['keranjang']
+        read_only_fields = ['keranjang']   
+
 
 
 class CheckoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Checkout
-        fields = '__all__'
+        fields = ['id', 'keranjang', 'total_harga', 'tanggal_checkout', 'shipping_method', 'payment_method']
+        read_only_fields = ['keranjang', 'total_harga']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

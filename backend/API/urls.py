@@ -14,7 +14,7 @@ urlpatterns = [
     path('item-keranjang/<int:pk>/', views.ItemKeranjangDetailView.as_view(), name='item-keranjang-detail'),
 
     # Checkout
-    path('checkout/', views.CheckoutListCreateView.as_view(), name='checkout-list'),
+    path('checkout/', views.CheckoutView.as_view(), name='checkout'),
     path('checkout/<int:pk>/', views.CheckoutDetailView.as_view(), name='checkout-detail'),
 
     path('register/', views.RegisterAPIView.as_view(), name='register'),

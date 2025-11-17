@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, CreditCard, Search, Home, LogIn } from "lucide-react";
-import { getProducts, handleLogout as serviceLogout } from "../services/produkService";
+import {
+  getProducts,
+  handleLogout as serviceLogout,
+  addToCart,
+} from "../services/produkService";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -19,7 +23,9 @@ const ProductsPage = () => {
         const data = await getProducts();
         const dataWithFullUrl = data.map((p) => ({
           ...p,
-          foto: p.foto?.startsWith("http") ? p.foto : `http://127.0.0.1:8000${p.foto}`,
+          foto: p.foto?.startsWith("http")
+            ? p.foto
+            : `http://127.0.0.1:8000${p.foto}`,
         }));
         setProducts(dataWithFullUrl);
       } catch (error) {
@@ -45,6 +51,22 @@ const ProductsPage = () => {
     navigate("/"); // redirect ke login page
   };
 
+  // Add to cart handler
+  const handleAddToCart = async (productId) => {
+    if (!token) {
+      navigate("/");
+      return;
+    }
+    try {
+      await addToCart(productId, 1);
+      alert("Product added to cart successfully!");
+      navigate("/cart");
+    } catch (error) {
+      alert("Failed to add product to cart. Please try again.");
+      console.error("Error adding to cart:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -55,7 +77,10 @@ const ProductsPage = () => {
             <Home size={22} />
           </Link>
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 text-gray-400" size={18} />
+            <Search
+              className="absolute left-2 top-2.5 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search product..."
@@ -64,7 +89,11 @@ const ProductsPage = () => {
               className="pl-8 pr-3 py-2 rounded-lg text-gray-700 focus:outline-none"
             />
           </div>
-          <Link to="/cart" className="relative p-2 hover:bg-green-600 rounded-full block">
+          <Link
+            to="/cart"
+            
+            className="relative p-2 hover:bg-green-600 rounded-full block"
+          >
             <ShoppingCart size={22} />
           </Link>
           <button className="relative p-2 hover:bg-green-600 rounded-full">
@@ -109,28 +138,40 @@ const ProductsPage = () => {
         ) : filteredProducts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((item) => (
-              <Link
+              <div
                 key={item.id}
-                to={`/product/${item.id}`}
-                className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden block"
+                className="bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 overflow-hidden"
               >
-                <img
-                  src={item.foto}
-                  alt={item.nama}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4 text-center">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    {item.nama}
-                  </h3>
-                  <p className="text-green-600 font-medium mt-2">
-                    Rp{item.harga}
-                  </p>
-                  <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">
+                <Link to={`/product/${item.id}`} className="block">
+                  <img
+                    src={item.foto}
+                    alt={item.nama}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4 text-center">
+                    <h3 className="text-lg font-semibold text-gray-700">
+                      {item.nama}
+                    </h3>
+                    <p className="text-green-600 font-medium mt-2">
+                      Rp{item.harga}
+                    </p>
+                  </div>
+                </Link>
+                <div className="p-4 pt-0 flex gap-2 justify-center">
+                  <Link
+                    to={`/product/${item.id}`}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-sm"
+                  >
                     View Details
+                  </Link>
+                  <button
+                    onClick={() => handleAddToCart(item.id)}
+                    className="px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 text-sm"
+                  >
+                    Add to Cart
                   </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (

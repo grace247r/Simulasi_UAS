@@ -7,17 +7,33 @@ const api = axios.create({
   },
 });
 
+// ⬆️ BASE API SETUP
+// --------------------------------------------------
 
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Add token to every request if available
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle errors globally
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error.response?.data || error.message);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
-// Products API
+// --------------------------------------------------
+// PRODUCT API
+// --------------------------------------------------
 export const productsAPI = {
   getAll: () => api.get("/produk/"),
   getById: (id) => api.get(`/produk/${id}/`),
@@ -26,7 +42,9 @@ export const productsAPI = {
   delete: (id) => api.delete(`/produk/${id}/`),
 };
 
-// Cart API
+// --------------------------------------------------
+// CART API
+// --------------------------------------------------
 export const cartAPI = {
   getCart: () => api.get("/keranjang/"),
   addToCart: (data) => api.post("/keranjang/", data),
@@ -35,7 +53,9 @@ export const cartAPI = {
   clearCart: () => api.delete("/keranjang/"),
 };
 
-// Checkout API
+// --------------------------------------------------
+// CHECKOUT API
+// --------------------------------------------------
 export const checkoutAPI = {
   createCheckout: (data) => api.post("/checkout/", data),
   getCheckout: (id) => api.get(`/checkout/${id}/`),

@@ -14,22 +14,19 @@ const Keranjang = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Redirect ke login kalau belum login
+  // Redirect kalau belum login
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
+    if (!token) navigate("/");
   }, [token, navigate]);
 
-  // Fetch cart dari backend
+  // Fetch cart
   useEffect(() => {
     const fetchCart = async () => {
-      setIsLoading(true);
       try {
         const data = await getCart();
         setCartItems(data);
-      } catch (error) {
-        console.error("Error fetching cart:", error);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
       } finally {
         setIsLoading(false);
       }
@@ -37,46 +34,52 @@ const Keranjang = () => {
     fetchCart();
   }, []);
 
-  const updateQuantityHandler = async (id, newQuantity) => {
-    if (newQuantity === 0) {
-      await removeItemHandler(id);
+  // ============================
+  // UPDATE QTY (FIXED)
+  // ============================
+  const updateQuantityHandler = async (item, newJumlah) => {
+    if (newJumlah === 0) {
+      await removeItemHandler(item.id);
       return;
     }
+
     try {
-      await updateCartItem(id, newQuantity);
-      setCartItems((items) =>
-        items.map((item) =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
+      await updateCartItem(item.id, newJumlah, item.produkId);
+
+      // Update UI
+      setCartItems((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, quantity: newJumlah } : i))
       );
-    } catch (error) {
-      console.error("Error updating quantity:", error);
+    } catch (err) {
+      console.error("Error updating quantity:", err);
     }
   };
 
+  // Remove item
   const removeItemHandler = async (id) => {
     try {
       await removeFromCart(id);
       setCartItems((items) => items.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error removing item:", error);
+    } catch (err) {
+      console.error("Error removing item:", err);
     }
   };
 
+  // Hitung subtotal berdasarkan quantity
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
   const shipping = subtotal > 200000 ? 0 : 15000;
   const total = subtotal + shipping;
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("id-ID", {
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0,
     }).format(price);
-  };
 
   if (isLoading) {
     return (
@@ -138,36 +141,47 @@ const Keranjang = () => {
                   >
                     <img
                       src={item.image}
-                      alt={item.name}
+                      alt={item.nama}
                       className="w-20 h-20 object-cover rounded-lg mr-4"
                     />
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-800">
-                        {item.name}
+                        {item.nama}
                       </h3>
                       <p className="text-green-600 font-medium">
                         {formatPrice(item.price)}
                       </p>
                     </div>
+
+                    {/* Quantity Controls */}
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() =>
-                          updateQuantityHandler(item.id, item.quantity - 1)
+                          updateQuantityHandler(item, item.quantity - 1)
                         }
                         className="p-1 hover:bg-gray-100 rounded"
                       >
                         <Minus size={16} />
                       </button>
+
                       <span className="w-8 text-center">{item.quantity}</span>
+
                       <button
                         onClick={() =>
-                          updateQuantityHandler(item.id, item.quantity + 1)
+                          updateQuantityHandler(item, item.quantity + 1)
                         }
-                        className="p-1 hover:bg-gray-100 rounded"
+                        disabled={item.quantity >= item.stok}
+                        className={`p-1 hover:bg-gray-100 rounded ${
+                          item.quantity >= item.stok
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
                       >
                         <Plus size={16} />
                       </button>
                     </div>
+
+                    {/* Total per item */}
                     <div className="ml-6 text-right">
                       <p className="text-lg font-semibold text-gray-800">
                         {formatPrice(item.price * item.quantity)}
@@ -199,12 +213,6 @@ const Keranjang = () => {
                       {shipping === 0 ? "Free" : formatPrice(shipping)}
                     </span>
                   </div>
-                  {subtotal < 200000 && (
-                    <p className="text-sm text-gray-500">
-                      Add {formatPrice(200000 - subtotal)} more for free
-                      shipping
-                    </p>
-                  )}
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-xl font-semibold">

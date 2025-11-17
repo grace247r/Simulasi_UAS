@@ -83,7 +83,6 @@ const Homepage = () => {
                 >
                   <ShoppingCart size={22} />
                   <span className="absolute top-1 right-1 bg-red-500 text-xs px-1 rounded-full">
-                    2
                   </span>
                 </Link>
               </>

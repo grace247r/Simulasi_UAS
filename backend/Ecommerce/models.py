@@ -9,6 +9,9 @@ class Produk(models.Model):
     stok = models.IntegerField(default=0)
     foto = models.ImageField(upload_to='produk/', blank=True, null=True)
 
+    rating = models.FloatField(default=0.0)
+    reviews = models.IntegerField(default=0)
+
     def __str__(self):
         return self.nama
 
@@ -16,6 +19,7 @@ class Produk(models.Model):
 class Keranjang(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='keranjangs', null=True, blank=True)
     tanggal_dibuat = models.DateTimeField(auto_now_add=True)
+    is_checked_out = models.BooleanField(default=False)
 
     def __str__(self):
         # jika ada user tampilkan username, kalau tidak tampilkan id
@@ -46,6 +50,8 @@ class Checkout(models.Model):
     keranjang = models.OneToOneField(Keranjang, on_delete=models.CASCADE, related_name='checkout')
     total_harga = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     tanggal_checkout = models.DateTimeField(auto_now_add=True)
+    shipping_method = models.CharField(max_length=20, choices=[('regular', 'Regular'), ('express', 'Express')], default='regular')
+    payment_method = models.CharField(max_length=20, choices=[('COD', 'Cash on Delivery'), ('transfer', 'Bank Transfer')], default='COD')
 
     def __str__(self):
         return f"Checkout {self.id}"
